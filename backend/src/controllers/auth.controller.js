@@ -32,7 +32,8 @@ export async function register(req, res) {
     );
 
     // Send a welcome email to the user
-    await sendEmail({
+    try{
+      await sendEmail({
       to: email,
       subject: "Welcome to our app",
       html: `
@@ -77,7 +78,10 @@ export async function register(req, res) {
 
     </div>
   </div>`,
-    });
+    })
+    } catch (err){
+      console.warn("Failed to send verification email:", err.message);
+    }
 
     return res.status(201).json({
       message: "User registered successfully",

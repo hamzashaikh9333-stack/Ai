@@ -4,14 +4,12 @@ import { useAuth } from "../features/auth/hook/useAuth";
 import { useEffect } from "react";
 
 const App = () => {
-  const {handleGetMe} = useAuth();
+  const { handleGetMe } = useAuth();
 
   useEffect(() => {
-    handleGetMe();
-  }, [])
-  return(
-     <RouterProvider router={router} />
-    )
+    handleGetMe().catch(() => {});
+  }, []);
+  return <RouterProvider router={router} />;
 };
 
 export default App;

@@ -1,6 +1,7 @@
 import { generateResponse, generateChatTitle } from "../services/ai.service.js";
 import chatModel from "../models/chat.model.js";
 import messageModel from "../models/message.model.js";
+import { getIO } from "../sockets/server.socket.js";
 
 export async function sendMessage(req, res) {
   console.log(req.body)
@@ -66,6 +67,19 @@ export async function sendMessage(req, res) {
   });
 
   // 🟢 7. FINAL RESPONSE (frontend ko kya bhejna hai)
+  
+  // 📡 8. Emit messages via Socket.IO (optional for real-time)
+  try {
+    const io = getIO();
+    io.emit("messageReceived", {
+      chatId: chatIdToUse,
+      content: aiMessage.content,
+      role: "assistant",
+    });
+  } catch (error) {
+    console.warn("⚠️  Socket emission skipped:", error.message);
+  }
+  
   return res.status(201).json({
     chatId: chatIdToUse,
     chatTitle: chat?.title,

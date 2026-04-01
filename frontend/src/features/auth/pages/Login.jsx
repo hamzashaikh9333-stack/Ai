@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hook/useAuth";
 import { useSelector } from "react-redux";
@@ -11,17 +11,21 @@ const Login = () => {
 
   const user = useSelector((state) => state.auth.user);
   const loading = useSelector((state) => state.auth.loading);
+  const error = useSelector((state) => state.auth.error);
 
   const { handleLogin } = useAuth();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin({ email, password });
-    navigate("/");
   };
-  if(!loading && user) {
-    navigate("/");
-  }
+
+  // Auto-navigate after successful login
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen w-full bg-[#202020] flex items-center justify-center p-4">
@@ -35,6 +39,13 @@ const Login = () => {
             </h1>
             <p className="text-gray-300 text-sm">Sign in to your account</p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-900/30 border border-red-500 rounded-lg">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -82,9 +93,10 @@ const Login = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full mt-7 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-red-900/50"
+              disabled={loading}
+              className="w-full mt-7 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-red-900/50"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
 

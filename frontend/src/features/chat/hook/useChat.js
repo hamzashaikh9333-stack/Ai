@@ -1,10 +1,5 @@
 import { initializeSocketConnection } from "../service/chat.socket";
-import {
-  sendMessage,
-  getChats,
-  getMessages,
-  deleteChat,
-} from "../service/chat.api";
+import { sendMessage } from "../service/chat.api";
 import {
   setCurrentChatId,
   setLoading,
@@ -55,7 +50,7 @@ export function useChat() {
 
       // 🟣 6. Current chat set
       dispatch(setCurrentChatId(chat._id));
-    } catch (error) {
+    } catch {
       dispatch(setError("Something went wrong"));
     } finally {
       // ⚪ 7. Loader OFF

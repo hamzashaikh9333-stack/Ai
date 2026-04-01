@@ -8,7 +8,8 @@ export function useAuth() {
   async function handleRegister({ fullName, email, password }) {
     dispatch(setLoading(true));
     try {
-      const response = await register({ username: fullName, email, password });
+      const response = await register(fullName, email, password);
+      dispatch(setUser(response.user));
     } catch (error) {
       dispatch(
         setError(error.response?.data?.message || "Registration failed"),
@@ -37,9 +38,14 @@ export function useAuth() {
       const response = await getMe();
       dispatch(setUser(response.user));
     } catch (error) {
-      dispatch(
-        setError(error.response?.data?.message || "Can't fetch user data"),
-      );
+      if (error.response?.status === 401) {
+        // silently ignore (user not logged in)
+        dispatch(setUser(null));
+      } else {
+        dispatch(
+          setError(error.response?.data?.message || "Can't fetch user data"),
+        );
+      }
     } finally {
       dispatch(setLoading(false));
     }

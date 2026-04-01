@@ -3,26 +3,23 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    type: "OAuth2",
     user: process.env.GOOGLE_USER,
-    clientId: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+    pass: process.env.GOOGLE_APP_PASSWORD,
   },
 });
 
-// Verify the connection configuration
+// Verify the connection configuration (async, non-blocking)
 transporter
   .verify()
   .then(() => {
-    console.log("Email transporter is ready to send emails");
+    console.log("✅ Email transporter is ready to send emails");
   })
   .catch((error) => {
-    console.error("Error setting up email transporter:", error);
+    console.warn("⚠️ Email transporter warning:", error.message);
   });
 
-export async function sendEmail({to, subject, html, text}) {
-    if (!to || !subject || (!html && !text)) {
+export async function sendEmail({ to, subject, html, text }) {
+  if (!to || !subject || (!html && !text)) {
     throw new Error("Missing required email parameters");
   }
   const mailOptions = {
@@ -32,7 +29,9 @@ export async function sendEmail({to, subject, html, text}) {
     html,
     text,
   };
- 
+
   const details = await transporter.sendMail(mailOptions);
   console.log("Email sent successfully", details);
+  console.log(process.env.GOOGLE_USER);
+  console.log(process.env.GOOGLE_APP_PASSWORD);
 }
