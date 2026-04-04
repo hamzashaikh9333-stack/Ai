@@ -61,10 +61,11 @@ const DashBoard = () => {
 
   // 🔥 LOAD MESSAGES WHEN CHAT CHANGES
   useEffect(() => {
-    if (currentChatId) {
+    // Skip fetching for temporary chats (they don't exist in DB yet)
+    if (currentChatId && !currentChatId.startsWith('temp-')) {
       handleGetMessages(currentChatId);
     }
-  }, [currentChatId]);
+  }, [currentChatId, handleGetMessages]);
 
   // 🔥 TYPING EFFECT
   const TYPING_SPEED = 30;

@@ -1,6 +1,14 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatMistralAI } from "@langchain/mistralai";
-import { HumanMessage, SystemMessage, AIMessage } from "langchain";
+import {
+  HumanMessage,
+  SystemMessage,
+  AIMessage,
+  tool,
+  createAgent,
+} from "langchain";
+import * as Z from "zod";
+import { searchInternet } from "./Internet.service.js";
 
 const geminiModel = new ChatGoogleGenerativeAI({
   model: "gemini-2.5-flash-lite",
@@ -12,54 +20,104 @@ const mistralModel = new ChatMistralAI({
   apiKey: process.env.MISTRAL_API_KEY,
 });
 
+const searchInternetTool = tool(searchInternet, {
+  name: "searchInternet",
+  description:
+    "Search the internet for latest news, current events, or real-time information.",
+  schema: Z.object({
+    query: Z.string().describe("Search query for latest information"),
+  }),
+});
+
+const agent = createAgent({
+  model: geminiModel,
+  tools: [searchInternetTool],
+  maxIterations: 3,
+});
+
 export async function generateResponse(messages) {
   try {
-    const response = await geminiModel.invoke([
-      new SystemMessage(`
+    const userMessage = messages[messages.length - 1]?.content || "";
+
+    // ✅ ONLY search when BOTH conditions match
+    const shouldSearch =
+      /(latest|breaking|today|current)/i.test(userMessage) &&
+      /(news|update|updates|war|price|match|stock)/i.test(userMessage);
+
+    // 🔥 REALTIME FLOW (ONLY when needed)
+    if (shouldSearch) {
+      console.log("REALTIME MODE");
+
+      const toolResult = await searchInternet(userMessage);
+
+      try {
+        const response = await geminiModel.invoke([
+          new SystemMessage(`
+You are a helpful AI.
+
+IMPORTANT:
+- Use ONLY the provided data
+- Do NOT use your own knowledge
+- Give latest and accurate answer
+
+DATA:
+${toolResult}
+`),
+          new HumanMessage(userMessage),
+        ]);
+
+        return response?.content || response?.text || "";
+      } catch (error) {
+        console.log("Gemini failed → using Mistral");
+
+        const response = await mistralModel.invoke([
+          new SystemMessage(`
+Use ONLY this data to answer:
+
+${toolResult}
+`),
+          new HumanMessage(userMessage),
+        ]);
+
+        return response?.content || response?.text || "";
+      }
+    }
+
+    // 🔥 NORMAL CHAT (NO SEARCH)
+    const formattedMessages = messages
+      .map((msg) => {
+        if (msg.role === "user") return new HumanMessage(msg.content);
+        if (msg.role === "ai") return new AIMessage(msg.content);
+        return null;
+      })
+      .filter(Boolean);
+
+    try {
+      const response = await geminiModel.invoke([
+        new SystemMessage(`
 You are a helpful AI assistant.
 
-RESPONSE STYLE RULES:
-- Be clear, direct, and natural (like a human conversation)
-- DO NOT repeat the same sentence or idea
-- Avoid unnecessary headings for simple answers
-- Keep responses concise unless detail is asked
-- Use plain text for simple replies
-- Use bullet points ONLY when helpful
-- Avoid over-formatting
-
-FORMATTING RULES:
-- Use markdown ONLY when it improves readability
-- Do NOT add titles like "Answer:" or repeat the question
-- For short answers, respond in 1 clean sentence
-
-CODE RULES:
-- Only include code if explicitly required
-- Always wrap code in proper markdown:
-
-\`\`\`js
-// example
-\`\`\`
-
-BAD EXAMPLE:
-"The capital of India is New Delhi. The capital of India is New Delhi."
-
-GOOD EXAMPLE:
-"New Delhi is the capital of India."
+- Be clear and concise
+- Do not repeat
+- Keep answers natural
 `),
+        ...formattedMessages,
+      ]);
 
-      ...messages.map((msg) => {
-        if (msg.role === "user") {
-          return new HumanMessage(msg.content);
-        } else if (msg.role === "ai") {
-          return new AIMessage(msg.content);
-        }
-      }),
-    ]);
+      return response?.content || response?.text || "";
+    } catch (error) {
+      console.log("Gemini failed → fallback Mistral");
 
-    return response.text;
+      const response = await mistralModel.invoke([
+        new SystemMessage("You are a helpful AI assistant."),
+        ...formattedMessages,
+      ]);
+
+      return response?.content || response?.text || "";
+    }
   } catch (error) {
     console.error("Error generating response:", error);
-    throw error;
+    return "Something went wrong. Please try again.";
   }
 }
 

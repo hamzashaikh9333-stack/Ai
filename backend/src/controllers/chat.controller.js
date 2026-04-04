@@ -105,6 +105,13 @@ export async function getChats(req, res) {
 export async function getMessages(req, res) {
   const { chatId } = req.params;
 
+  // Validate chatId is a valid MongoDB ObjectId
+  if (!chatId || !chatId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({
+      error: "Invalid chat ID format",
+    });
+  }
+
   const chat = await chatModel.findOne({
     _id: chatId,
     user: req.user._id,
@@ -125,6 +132,13 @@ export async function getMessages(req, res) {
 
 export async function deleteChat(req, res) {
   const { chatId } = req.params;
+
+  // Validate chatId is a valid MongoDB ObjectId
+  if (!chatId || !chatId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({
+      error: "Invalid chat ID format",
+    });
+  }
 
   const chat = await chatModel.findOneAndDelete({
     _id: chatId,

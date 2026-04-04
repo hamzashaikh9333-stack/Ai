@@ -51,8 +51,20 @@ export function useChat() {
         }
 
         // Extract real chat data from backend
-        const { chat } = data;
+        const { chat, userMessage, aiMessage } = data;
         const realChatId = chat._id;
+
+        // Build messages array from backend response
+        const messagesArray = [
+          {
+            content: userMessage.content,
+            role: userMessage.role || "user",
+          },
+          {
+            content: aiMessage.content,
+            role: aiMessage.role === "ai" ? "assistant" : aiMessage.role,
+          },
+        ];
 
         // If this is a new chat, clean up the temporary chat
         if (tempChatId) {
@@ -62,12 +74,11 @@ export function useChat() {
         // Create/Update chat with real ID and title from backend
         dispatch(createNewChat({ chatId: realChatId, title: chat.title }));
 
-        // Set messages for the new real chat
-        await handleGetMessages(realChatId);
+        // Set messages from the response (no need to fetch again)
+        dispatch(setMessages({ chatId: realChatId, messages: messagesArray }));
 
         // Switch to the real chat ID
         dispatch(setCurrentChatId(realChatId));
-        localStorage.setItem("currentChatId", realChatId);
       } catch (error) {
         dispatch(setError(error.message || "Something went wrong"));
       } finally {
