@@ -14,15 +14,48 @@ const mistralModel = new ChatMistralAI({
 
 export async function generateResponse(messages) {
   try {
-    const response = await geminiModel.invoke(
-      messages.map((msg) => {
+    const response = await geminiModel.invoke([
+      new SystemMessage(`
+You are a helpful AI assistant.
+
+RESPONSE STYLE RULES:
+- Be clear, direct, and natural (like a human conversation)
+- DO NOT repeat the same sentence or idea
+- Avoid unnecessary headings for simple answers
+- Keep responses concise unless detail is asked
+- Use plain text for simple replies
+- Use bullet points ONLY when helpful
+- Avoid over-formatting
+
+FORMATTING RULES:
+- Use markdown ONLY when it improves readability
+- Do NOT add titles like "Answer:" or repeat the question
+- For short answers, respond in 1 clean sentence
+
+CODE RULES:
+- Only include code if explicitly required
+- Always wrap code in proper markdown:
+
+\`\`\`js
+// example
+\`\`\`
+
+BAD EXAMPLE:
+"The capital of India is New Delhi. The capital of India is New Delhi."
+
+GOOD EXAMPLE:
+"New Delhi is the capital of India."
+`),
+
+      ...messages.map((msg) => {
         if (msg.role === "user") {
           return new HumanMessage(msg.content);
         } else if (msg.role === "ai") {
           return new AIMessage(msg.content);
         }
       }),
-    );
+    ]);
+
     return response.text;
   } catch (error) {
     console.error("Error generating response:", error);

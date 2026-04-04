@@ -88,8 +88,7 @@ export async function sendMessage(req, res) {
     aiMessage, // jo AI ne reply kiya
     chat,
 
-    // optional (agar history bhi bhejni ho)
-    // messages: [...chatMessages, aiMessage]
+    
   });
 }
 

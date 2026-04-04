@@ -14,7 +14,9 @@ export const sendMessage = async ({ message, chatId }) => {
 
 export const getChats = async () => {
 
-    const response = await api.get("/api/chats/");
+    const response = await api.get("/api/chats/",{
+        withCredentials: true,
+    });
     return response.data
 }
 

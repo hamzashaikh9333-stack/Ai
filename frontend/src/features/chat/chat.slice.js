@@ -9,6 +9,22 @@ const chatSlice = createSlice({
     error: null,
   },
   reducers: {
+    setChats(state, action) {
+      const chatsArray = action.payload;
+
+      const chatsObject = {};
+
+      chatsArray.forEach((chat) => {
+        chatsObject[chat._id] = {
+          id: chat._id,
+          title: chat.title,
+          messages: [],
+          lastUpdated: chat.updatedAt,
+        };
+      });
+
+      state.chats = chatsObject;
+    },
     createNewChat(state, action) {
       const { chatId, title } = action.payload;
 
@@ -25,7 +41,14 @@ const chatSlice = createSlice({
     addNewMessage(state, action) {
       const { chatId, content, role } = action.payload;
 
-      if (!state.chats[chatId]) return;
+      if (!state.chats[chatId]) {
+        state.chats[chatId] = {
+          id: chatId,
+          title: "New Chat",
+          messages: [],
+          lastUpdated: new Date().toISOString(),
+        };
+      }
 
       state.chats[chatId].messages.push({ content, role });
       state.chats[chatId].lastUpdated = new Date().toISOString();
@@ -36,18 +59,34 @@ const chatSlice = createSlice({
     },
     setLoading(state, action) {
       state.isLoading = action.payload;
+      state.error = null;
     },
     setError(state, action) {
       state.error = action.payload;
+      state.isLoading = false;
+    },
+    setMessages(state, action) {
+      const { chatId, messages } = action.payload;
+      state.chats[chatId].messages = messages;
+    },
+    deleteChat(state, action) {
+      const chatId = action.payload;
+      delete state.chats[chatId];
+      if (state.currentChatId === chatId) {
+        state.currentChatId = null;
+      }
     },
   },
 });
 
 export const {
+  setChats,
   setCurrentChatId,
   setLoading,
   setError,
   createNewChat,
   addNewMessage,
+  setMessages,
+  deleteChat,
 } = chatSlice.actions;
 export default chatSlice.reducer;

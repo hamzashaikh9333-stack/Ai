@@ -1,38 +1,54 @@
 import { io } from "socket.io-client";
-import {store} from "../../../app/app.store";
+import { store } from "../../../app/app.store";
 import { addNewMessage } from "../chat.slice.js";
 
 let socket = null;
 
-export function initializeSocketConnection(){
-    if (socket) return socket; // Prevent multiple connections
-    
-    socket = io("http://localhost:3000",{
-        withCredentials: true,
-    })
+export function initializeSocketConnection() {
+  // 🔥 1. Prevent multiple connections
+  if (socket) return socket;
 
-    socket.on("connect", () => {
-        console.log("✅ Connected to Socket.IO server");
-    });
-    
-    // Listen for incoming messages from backend
-    socket.on("messageReceived", (data) => {
-        const { chatId, content, role } = data;
-        store.dispatch(addNewMessage({ chatId, content, role }));
-        console.log("📨 Message received:", data);
-    });
-    
-    socket.on("disconnect", () => {
-        console.log("❌ Disconnected from Socket.IO server");
-    });
-    
-    socket.on("error", (error) => {
-        console.error("❌ Socket error:", error);
-    });
-    
-    return socket;
+  socket = io("http://localhost:3000", {
+    withCredentials: true,
+  });
+
+  // ✅ Connected
+  socket.on("connect", () => {
+    console.log("✅ Connected to Socket.IO server");
+  });
+
+  // 🔥 2. REMOVE old listener before adding new one (VERY IMPORTANT)
+  socket.off("messageReceived");
+
+  // ✅ 3. Listen for messages (ONLY ONCE)
+  socket.on("messageReceived", (data) => {
+    console.log("📩 SOCKET MESSAGE:", data);
+
+    const { chatId, content, role } = data;
+
+    store.dispatch(
+      addNewMessage({
+        chatId,
+        content,
+        role,
+      }),
+    );
+  });
+
+  // ✅ Disconnect log
+  socket.on("disconnect", () => {
+    console.log("❌ Disconnected from Socket.IO server");
+  });
+
+  // ✅ Error log
+  socket.on("connect_error", (error) => {
+    console.error("❌ Socket error:", error);
+  });
+
+  return socket;
 }
 
+// Optional helper
 export function getSocket() {
-    return socket;
+  return socket;
 }
