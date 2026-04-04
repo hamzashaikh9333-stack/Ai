@@ -10,12 +10,15 @@ const DashBoard = () => {
   // 🔹 STATE
   const [chatInput, setChatInput] = useState("");
   const [typingMessage, setTypingMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState(null);
 
   const chatContainerRef = useRef(null);
   const isTypingRef = useRef(false);
 
   // 🔹 REDUX
   const chats = useSelector((state) => state.chat.chats);
+  const user = useSelector((state) => state.auth.user);
   const currentChatId = useSelector((state) => state.chat.currentChatId);
   const isLoading = useSelector((state) => state.chat.isLoading);
   const error = useSelector((state) => state.chat.error);
@@ -43,7 +46,16 @@ const DashBoard = () => {
 
   // 🔥 LOAD CHATS ON MOUNT
   useEffect(() => {
-    handleGetChat();
+    const init = async () => {
+      await handleGetChat();
+
+      const savedChatId = localStorage.getItem("currentChatId");
+      if (savedChatId) {
+        await handleGetMessages(savedChatId);
+      }
+    };
+
+    init();
     initializeSocketConnection();
   }, []);
 
@@ -168,7 +180,7 @@ const DashBoard = () => {
         <div className="p-4 space-y-3 overflow-y-auto scrollbar-hide">
           <button
             onClick={handleNewChat}
-            className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg text-sm font-medium transition duration-200 flex items-center justify-center gap-2"
+            className="w-full px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-lg text-sm font-medium transition duration-200 flex items-center justify-center gap-2"
           >
             <span className="text-lg">+</span>
             New Message
@@ -186,7 +198,7 @@ const DashBoard = () => {
                   key={chat.id}
                   className={`group flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition duration-200 ${
                     currentChatId === chat.id
-                      ? "bg-[#2a2a2a] text-blue-400"
+                      ? "bg-[#2a2a2a] text-emerald-400"
                       : "hover:bg-[#222] text-gray-300"
                   }`}
                 >
@@ -202,13 +214,8 @@ const DashBoard = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (
-                        window.confirm(
-                          "Are you sure you want to delete this chat?",
-                        )
-                      ) {
-                        handleDeleteChat(chat.id);
-                      }
+                      setChatToDelete(chat.id);
+                      setShowDeleteModal(true);
                     }}
                     className="hidden group-hover:block bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded transition duration-200"
                   >
@@ -219,10 +226,19 @@ const DashBoard = () => {
             )}
           </div>
         </div>
-
+        
         {/* PROFILE SECTION */}
-        <div className="p-4 text-sm text-gray-400 border-t border-gray-700">
-          👤 User Profile
+        <div className="p-4 text-sm text-gray-400 border-t border-gray-700 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold">
+            {user?.username?.charAt(0)?.toUpperCase() || "U"}
+          </div>
+
+          <div>
+            <div className="text-sm text-white font-medium">
+              👤{user?.username || "User"}
+            </div>
+            <div className="text-xs text-gray-500">Online</div>
+          </div>
         </div>
       </div>
 
@@ -254,7 +270,7 @@ const DashBoard = () => {
                   <div
                     className={`px-4 py-3 rounded-2xl max-w-[90%] md:max-w-[70%] text-sm leading-relaxed break-words ${
                       msg.role === "user"
-                        ? "bg-blue-600 text-white"
+                        ? "bg-gray-700 text-white"
                         : "bg-[#1e1e1e] text-gray-200"
                     }`}
                   >
@@ -317,6 +333,39 @@ const DashBoard = () => {
           </div>
         </div>
       </div>
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+          <div className="bg-[#1e1e1e] rounded-2xl p-6 w-[90%] max-w-sm shadow-2xl transform animate-scaleIn">
+            <h2 className="text-lg font-semibold text-white mb-2">
+              Delete Chat
+            </h2>
+
+            <p className="text-sm text-gray-400 mb-6">
+              Are you sure you want to delete this chat? This action cannot be
+              undone.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-sm rounded-lg bg-gray-700 hover:bg-gray-600 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  handleDeleteChat(chatToDelete);
+                  setShowDeleteModal(false);
+                }}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
