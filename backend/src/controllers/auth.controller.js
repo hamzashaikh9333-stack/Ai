@@ -32,11 +32,11 @@ export async function register(req, res) {
     );
 
     // Send a welcome email to the user
-    try{
+    try {
       await sendEmail({
-      to: email,
-      subject: "Welcome to our app",
-      html: `
+        to: email,
+        subject: "Welcome to our app",
+        html: `
                   <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
     
     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
@@ -78,8 +78,8 @@ export async function register(req, res) {
 
     </div>
   </div>`,
-    })
-    } catch (err){
+      });
+    } catch (err) {
       console.warn("Failed to send verification email:", err.message);
     }
 
@@ -246,7 +246,11 @@ export async function login(req, res) {
       expiresIn: "7d",
     },
   );
-  res.cookie("token", token);
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
   return res.status(200).json({
     message: "User logged in successfully",
     success: true,
@@ -259,18 +263,18 @@ export async function login(req, res) {
 }
 
 export async function getMe(req, res) {
-    const userId = req.user._id;
-    const user = await userModel.findById(userId).select("-password");
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false,
-        err: "User not found",
-      });
-    }
-    return res.status(200).json({
-      message: "User fetched successfully",
-      success: true,
-      user,
+  const userId = req.user._id;
+  const user = await userModel.findById(userId).select("-password");
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+      success: false,
+      err: "User not found",
     });
+  }
+  return res.status(200).json({
+    message: "User fetched successfully",
+    success: true,
+    user,
+  });
 }
