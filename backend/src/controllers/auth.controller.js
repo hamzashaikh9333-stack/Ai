@@ -60,7 +60,7 @@ export async function register(req, res) {
 
         <!-- Button -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}" 
+          <a href="${process.env.CLIENT_URL}/api/auth/verify-email?token=${emailVerificationToken}" 
              style="background: #4f46e5; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-size: 16px; display: inline-block;">
             Verify Email
           </a>
@@ -173,7 +173,7 @@ export async function verifyEmail(req, res) {
         </p>
 
         <!-- Button -->
-        <a href="http://localhost:3000/api/auth/login" 
+        <a href="${process.env.CLIENT_URL}/api/auth/login" 
            style="
              display:inline-block;
              margin-top:25px;
