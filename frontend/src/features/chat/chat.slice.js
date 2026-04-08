@@ -67,7 +67,21 @@ const chatSlice = createSlice({
     },
     setMessages(state, action) {
       const { chatId, messages } = action.payload;
-      state.chats[chatId].messages = messages;
+      if (state.chats[chatId]) {
+        state.chats[chatId].messages = messages;
+        state.chats[chatId].lastUpdated = new Date().toISOString();
+      }
+    },
+
+    appendMessages(state, action) {
+      const { chatId, messages } = action.payload;
+      if (state.chats[chatId]) {
+        state.chats[chatId].messages = [
+          ...state.chats[chatId].messages,
+          ...messages,
+        ];
+        state.chats[chatId].lastUpdated = new Date().toISOString();
+      }
     },
     deleteChat(state, action) {
       const chatId = action.payload;
@@ -87,6 +101,7 @@ export const {
   createNewChat,
   addNewMessage,
   setMessages,
+  appendMessages,
   deleteChat,
 } = chatSlice.actions;
 export default chatSlice.reducer;

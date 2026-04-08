@@ -244,60 +244,100 @@ const DashBoard = () => {
       </div>
 
       {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col min-h-screen md:min-h-auto">
+      <div className="flex-1 flex flex-col min-h-screen md:min-h-auto bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a]">
         {/* MESSAGES CONTAINER */}
         <div
           ref={chatContainerRef}
-          className="flex-1 px-4 md:px-6 py-6 space-y-5 overflow-y-auto scrollbar-hide"
+          className="flex-1 px-3 md:px-8 py-6 space-y-3 overflow-y-auto scrollbar-hide"
         >
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-gray-500">
-              <div className="text-center">
-                <div className="text-4xl mb-3">💬</div>
-                <p className="text-sm">Select a chat or create a new message</p>
+              <div className="text-center space-y-4">
+                <div className="text-5xl animate-bounce">💬</div>
+                <p className="text-sm font-semibold text-gray-400">No messages yet</p>
+                <p className="text-xs text-gray-600">Start a conversation to begin chatting</p>
               </div>
             </div>
           ) : (
             messages.map((msg, index) => {
               const isLast = index === messages.length - 1;
+              const isUser = msg.role === "user";
+              const timestamp = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              }) : '';
 
               return (
                 <div
                   key={index}
                   className={`flex ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                    isUser ? "justify-end" : "justify-start"
+                  } animate-slideUp group`}
+                  style={{ animationDelay: `${index * 30}ms` }}
                 >
-                  <div
-                    className={`px-4 py-3 rounded-2xl max-w-[90%] md:max-w-[70%] text-sm leading-relaxed break-words ${
-                      msg.role === "user"
-                        ? "bg-gray-700 text-white"
-                        : "bg-[#1e1e1e] text-gray-200"
-                    }`}
-                  >
-                    <ReactMarkdown components={markdownComponents}>
-                      {msg.role === "assistant" && isLast
-                        ? typingMessage
-                        : msg.content}
-                    </ReactMarkdown>
+                  {/* AI Avatar */}
+                  {!isUser && (
+                    <div className="flex-shrink-0 mr-2 mt-1">
+                      <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+                        🤖
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message Bubble */}
+                  <div className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}>
+                    <div
+                      className={`px-4 py-3 rounded-3xl max-w-[85%] md:max-w-[60%] text-xs md:text-sm leading-relaxed break-words shadow-md transition-all duration-300 hover:shadow-lg ${
+                        isUser
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-sm"
+                          : "bg-gray-800 text-gray-100 rounded-bl-sm border border-gray-700"
+                      }`}
+                    >
+                      <ReactMarkdown components={markdownComponents}>
+                        {isUser && isLast
+                          ? msg.content
+                          : msg.role === "assistant" && isLast
+                          ? typingMessage
+                          : msg.content}
+                      </ReactMarkdown>
+                    </div>
+                    
+                    {/* Timestamp */}
+                    <span className="text-xs text-gray-600 mt-1 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {timestamp}
+                    </span>
                   </div>
+
+                  {/* User Avatar */}
+                  {isUser && (
+                    <div className="flex-shrink-0 ml-2 mt-1">
+                      <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+                        {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })
           )}
 
-          {/* LOADING STATE */}
+          {/* LOADING STATE - TYPING INDICATOR */}
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="px-4 py-3 rounded-2xl bg-[#1e1e1e]">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+            <div className="flex justify-start animate-slideUp">
+              <div className="flex-shrink-0 mr-2">
+                <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+                  🤖
+                </div>
+              </div>
+              <div className="px-4 py-3 rounded-3xl rounded-bl-sm bg-gray-800 border border-gray-700">
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
                   <div
-                    className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.4s" }}
                   ></div>
                 </div>
@@ -307,10 +347,11 @@ const DashBoard = () => {
         </div>
 
         {/* INPUT SECTION */}
-        <div className="px-4 md:px-6 py-4 bg-[#0f0f0f] border-t border-gray-700">
+        <div className="px-3 md:px-6 py-4 md:py-5 bg-[#0f0f0f] border-t border-gray-700/50 shadow-2xl">
           {error && (
-            <div className="mb-3 p-2 bg-red-900 bg-opacity-30 border border-red-600 rounded text-red-400 text-xs">
-              {error}
+            <div className="mb-3 p-3 bg-red-900/30 border border-red-600/50 rounded-lg text-red-400 text-xs animate-shake flex items-center gap-2 font-medium">
+              <span>⚠️</span>
+              <span>{error}</span>
             </div>
           )}
 
@@ -319,17 +360,18 @@ const DashBoard = () => {
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Send a message... (Shift+Enter for new line)"
+              placeholder="Type a message... (Shift+Enter for new line)"
               rows="1"
-              className="flex-1 bg-[#1e1e1e] border border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-600 transition duration-200 resize-none max-h-32"
+              className="flex-1 bg-gray-800 border border-gray-700 hover:border-gray-600 rounded-2xl px-4 md:px-5 py-3 text-xs md:text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 resize-none max-h-32 placeholder-gray-500"
             />
 
             <button
               onClick={handleSendMessageUI}
               disabled={isLoading || !chatInput.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 md:px-6 py-2.5 rounded-lg text-sm font-medium transition duration-200"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed px-4 md:px-6 py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white shadow-lg hover:shadow-xl cursor-pointer flex items-center gap-2"
             >
-              Send
+              <span>📤</span>
+              <span className="hidden md:inline">Send</span>
             </button>
           </div>
         </div>

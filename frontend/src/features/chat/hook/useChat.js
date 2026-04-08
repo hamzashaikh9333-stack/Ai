@@ -14,6 +14,7 @@ import {
   createNewChat,
   addNewMessage,
   setMessages,
+  appendMessages,
   deleteChat,
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
@@ -51,20 +52,8 @@ export function useChat() {
         }
 
         // Extract real chat data from backend
-        const { chat, userMessage, aiMessage } = data;
+        const { chat } = data;
         const realChatId = chat._id;
-
-        // Build messages array from backend response
-        const messagesArray = [
-          {
-            content: userMessage.content,
-            role: userMessage.role || "user",
-          },
-          {
-            content: aiMessage.content,
-            role: aiMessage.role === "ai" ? "assistant" : aiMessage.role,
-          },
-        ];
 
         // If this is a new chat, clean up the temporary chat
         if (tempChatId) {
@@ -74,8 +63,11 @@ export function useChat() {
         // Create/Update chat with real ID and title from backend
         dispatch(createNewChat({ chatId: realChatId, title: chat.title }));
 
-        // Set messages from the response (no need to fetch again)
-        dispatch(setMessages({ chatId: realChatId, messages: messagesArray }));
+        // 🔥 FETCH ALL MESSAGES from backend to ensure complete history
+        const messagesData = await getMessages(realChatId);
+        if (messagesData && messagesData.messages) {
+          dispatch(setMessages({ chatId: realChatId, messages: messagesData.messages }));
+        }
 
         // Switch to the real chat ID
         dispatch(setCurrentChatId(realChatId));

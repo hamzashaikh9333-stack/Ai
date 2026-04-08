@@ -12,7 +12,7 @@ initSocket(httpServer);
 
 
 connectDB().then(() => {
-  httpServer.listen(3000,()=> {
-    console.log("Server is running on port 3000");
+  httpServer.listen(5000,()=> {
+    console.log("Server is running on port 5000");
   });
 });
