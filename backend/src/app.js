@@ -10,23 +10,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://your-frontend.vercel.app", // (abhi placeholder hai)
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: "https://wiggle-ai.netlify.app",
+  credentials: true,
+}));
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRouter);
