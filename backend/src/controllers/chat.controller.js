@@ -4,7 +4,6 @@ import messageModel from "../models/message.model.js";
 import { getIO } from "../sockets/server.socket.js";
 
 export async function sendMessage(req, res) {
-  console.log(req.body)
   const { message: userInput, chatId } = req.body;
   
 
@@ -77,7 +76,7 @@ export async function sendMessage(req, res) {
       role: "assistant",
     });
   } catch (error) {
-    console.warn("⚠️  Socket emission skipped:", error.message);
+    // Socket emission failed silently
   }
   
   return res.status(201).json({

@@ -80,7 +80,7 @@ export async function register(req, res) {
   </div>`,
       });
     } catch (err) {
-      console.warn("Failed to send verification email:", err.message);
+      // Email sending failed silently
     }
 
     return res.status(201).json({
@@ -203,7 +203,6 @@ export async function verifyEmail(req, res) {
 `);
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      console.log(error);
       return res.send("Verification link expired ❌");
     }
     return res.status(500).json({

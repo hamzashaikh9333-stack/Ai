@@ -10,17 +10,13 @@ export function initSocket(httpServer) {
         },
     });
 
-    console.log("✅ Socket.io server is Running");
-
     io.on('connection', (socket) => {
-        console.log('👤 User connected: ' + socket.id);
-        
         socket.on('disconnect', () => {
-            console.log('👤 User disconnected: ' + socket.id);
+            // User disconnected
         });
         
         socket.on('error', (error) => {
-            console.error('❌ Socket error:', error);
+            // Socket error occurred
         });
     });
 }

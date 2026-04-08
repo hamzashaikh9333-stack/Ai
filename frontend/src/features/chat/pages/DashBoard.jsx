@@ -174,38 +174,39 @@ const DashBoard = () => {
   const chatsList = Object.values(chats);
 
   return (
-    <div className="h-screen flex flex-col md:flex-row bg-[#0f0f0f] text-gray-200">
-      {/* SIDEBAR */}
-      <div className="w-full md:w-[260px] bg-[#171717] flex flex-col justify-between border-b md:border-b-0 md:border-r border-gray-700">
+    <div className="h-screen w-screen flex flex-col sm:flex-row bg-[#0f0f0f] text-gray-200 overflow-hidden">
+      {/* SIDEBAR - RESPONSIVE */}
+      <div className="w-full sm:w-1/3 md:w-1/4 lg:w-72 xl:w-80 bg-[#171717] flex flex-col justify-between border-b sm:border-b-0 sm:border-r border-gray-700/50 overflow-hidden">
         {/* NEW MESSAGE BUTTON + CHATS */}
-        <div className="p-4 space-y-3 overflow-y-auto scrollbar-hide">
+        <div className="p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3 overflow-y-auto scrollbar-hide">
           <button
             onClick={handleNewChat}
-            className="w-full px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-lg text-sm font-medium transition duration-200 flex items-center justify-center gap-2"
+            className="w-full px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 active:scale-95 rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
           >
-            <span className="text-lg">+</span>
-            New Message
+            <span className="text-base sm:text-lg">+</span>
+            <span className="hidden xs:inline">New Message</span>
+            <span className="inline xs:hidden">New</span>
           </button>
 
           {/* CHATS LIST */}
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             {chatsList.length === 0 ? (
-              <div className="text-center text-gray-500 text-sm py-4">
+              <div className="text-center text-gray-500 text-xs sm:text-sm py-4 sm:py-6">
                 No chats yet
               </div>
             ) : (
               chatsList.map((chat) => (
                 <div
                   key={chat.id}
-                  className={`group flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition duration-200 ${
+                  className={`group flex items-center justify-between px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
                     currentChatId === chat.id
-                      ? "bg-[#2a2a2a] text-emerald-400"
-                      : "hover:bg-[#222] text-gray-300"
+                      ? "bg-emerald-600/20 text-emerald-400 border border-emerald-600/50"
+                      : "hover:bg-gray-700/40 text-gray-300"
                   }`}
                 >
                   <div
                     onClick={() => handleSelectChat(chat.id)}
-                    className="flex-1 truncate text-sm"
+                    className="flex-1 truncate text-xs sm:text-sm md:text-base"
                     title={chat.title}
                   >
                     {chat.title}
@@ -218,7 +219,7 @@ const DashBoard = () => {
                       setChatToDelete(chat.id);
                       setShowDeleteModal(true);
                     }}
-                    className="hidden group-hover:block bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded transition duration-200"
+                    className="hidden sm:block opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs px-2 py-1 rounded transition-all duration-200 transform hover:scale-110 cursor-pointer ml-1"
                   >
                     ✕
                   </button>
@@ -229,33 +230,33 @@ const DashBoard = () => {
         </div>
         
         {/* PROFILE SECTION */}
-        <div className="p-4 text-sm text-gray-400 border-t border-gray-700 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold">
+        <div className="p-2 sm:p-3 md:p-4 text-xs sm:text-sm border-t border-gray-700/50 flex items-center gap-2 sm:gap-3 hover:bg-gray-800/30 transition-colors">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-md shrink-0">
             {user?.username?.charAt(0)?.toUpperCase() || "U"}
           </div>
 
-          <div>
-            <div className="text-sm text-white font-medium">
-              👤{user?.username || "User"}
+          <div className="min-w-0">
+            <div className="text-xs sm:text-sm text-white font-semibold truncate">
+              {user?.username || "User"}
             </div>
-            <div className="text-xs text-gray-500">Online</div>
+            <div className="text-xs text-gray-500">🟢 Online</div>
           </div>
         </div>
       </div>
 
-      {/* CHAT AREA */}
-      <div className="flex-1 flex flex-col min-h-screen md:min-h-auto bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a]">
+      {/* CHAT AREA - RESPONSIVE */}
+      <div className="flex-1 hidden sm:flex flex-col min-h-screen sm:min-h-full bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a] overflow-hidden">
         {/* MESSAGES CONTAINER */}
         <div
           ref={chatContainerRef}
-          className="flex-1 px-3 md:px-8 py-6 space-y-3 overflow-y-auto scrollbar-hide"
+          className="flex-1 px-2 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 space-y-2 sm:space-y-3 md:space-y-4 overflow-y-auto scrollbar-hide"
         >
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-gray-500">
-              <div className="text-center space-y-4">
-                <div className="text-5xl animate-bounce">💬</div>
-                <p className="text-sm font-semibold text-gray-400">No messages yet</p>
-                <p className="text-xs text-gray-600">Start a conversation to begin chatting</p>
+              <div className="text-center space-y-3 sm:space-y-4">
+                <div className="text-4xl sm:text-5xl md:text-6xl animate-bounce">💬</div>
+                <p className="text-xs sm:text-sm md:text-base font-semibold text-gray-400">No messages yet</p>
+                <p className="text-xs text-gray-600">Start a conversation to begin</p>
               </div>
             </div>
           ) : (
@@ -272,25 +273,25 @@ const DashBoard = () => {
                   key={index}
                   className={`flex ${
                     isUser ? "justify-end" : "justify-start"
-                  } animate-slideUp group`}
+                  } animate-slideUp group px-1 sm:px-0`}
                   style={{ animationDelay: `${index * 30}ms` }}
                 >
                   {/* AI Avatar */}
                   {!isUser && (
-                    <div className="flex-shrink-0 mr-2 mt-1">
-                      <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+                    <div className="flex-shrink-0 mr-1.5 sm:mr-2 md:mr-3 mt-1">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-md">
                         🤖
                       </div>
                     </div>
                   )}
 
                   {/* Message Bubble */}
-                  <div className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}>
+                  <div className={`flex flex-col ${isUser ? "items-end" : "items-start"} max-w-full sm:max-w-none`}>
                     <div
-                      className={`px-4 py-3 rounded-3xl max-w-[85%] md:max-w-[60%] text-xs md:text-sm leading-relaxed break-words shadow-md transition-all duration-300 hover:shadow-lg ${
+                      className={`px-3 sm:px-4 md:px-5 py-2 sm:py-3 md:py-3 rounded-2xl md:rounded-3xl max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-xs sm:text-sm md:text-base leading-relaxed break-words shadow-md transition-all duration-300 hover:shadow-lg ${
                         isUser
-                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-sm"
-                          : "bg-gray-800 text-gray-100 rounded-bl-sm border border-gray-700"
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-none"
+                          : "bg-gray-800 text-gray-100 rounded-bl-none border border-gray-700/60"
                       }`}
                     >
                       <ReactMarkdown components={markdownComponents}>
@@ -303,15 +304,15 @@ const DashBoard = () => {
                     </div>
                     
                     {/* Timestamp */}
-                    <span className="text-xs text-gray-600 mt-1 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-xs text-gray-600 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       {timestamp}
                     </span>
                   </div>
 
                   {/* User Avatar */}
                   {isUser && (
-                    <div className="flex-shrink-0 ml-2 mt-1">
-                      <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+                    <div className="flex-shrink-0 ml-1.5 sm:ml-2 md:ml-3 mt-1">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-md">
                         {user?.username?.charAt(0)?.toUpperCase() || "U"}
                       </div>
                     </div>
@@ -323,14 +324,14 @@ const DashBoard = () => {
 
           {/* LOADING STATE - TYPING INDICATOR */}
           {isLoading && (
-            <div className="flex justify-start animate-slideUp">
-              <div className="flex-shrink-0 mr-2">
-                <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+            <div className="flex justify-start animate-slideUp px-1 sm:px-0">
+              <div className="flex-shrink-0 mr-1.5 sm:mr-2 md:mr-3">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-md">
                   🤖
                 </div>
               </div>
-              <div className="px-4 py-3 rounded-3xl rounded-bl-sm bg-gray-800 border border-gray-700">
-                <div className="flex gap-1.5">
+              <div className="px-3 sm:px-4 md:px-5 py-2 sm:py-3 rounded-2xl md:rounded-3xl rounded-bl-none bg-gray-800 border border-gray-700/60">
+                <div className="flex gap-1 sm:gap-1.5">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
                   <div
                     className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"
@@ -346,52 +347,176 @@ const DashBoard = () => {
           )}
         </div>
 
-        {/* INPUT SECTION */}
-        <div className="px-3 md:px-6 py-4 md:py-5 bg-[#0f0f0f] border-t border-gray-700/50 shadow-2xl">
+        {/* INPUT SECTION - RESPONSIVE */}
+        <div className="px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3 md:py-4 lg:py-5 bg-[#0f0f0f] border-t border-gray-700/50 shadow-2xl shrink-0">
           {error && (
-            <div className="mb-3 p-3 bg-red-900/30 border border-red-600/50 rounded-lg text-red-400 text-xs animate-shake flex items-center gap-2 font-medium">
+            <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-red-900/30 border border-red-600/50 rounded-lg text-red-400 text-xs sm:text-sm animate-shake flex items-center gap-2 font-medium">
               <span>⚠️</span>
-              <span>{error}</span>
+              <span className="truncate">{error}</span>
             </div>
           )}
 
-          <div className="flex items-end gap-3">
+          <div className="flex items-end gap-2 sm:gap-3">
             <textarea
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Type a message... (Shift+Enter for new line)"
+              placeholder="Type a message..."
               rows="1"
-              className="flex-1 bg-gray-800 border border-gray-700 hover:border-gray-600 rounded-2xl px-4 md:px-5 py-3 text-xs md:text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 resize-none max-h-32 placeholder-gray-500"
+              className="flex-1 bg-gray-800 border border-gray-700 hover:border-gray-600 rounded-xl md:rounded-2xl px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm md:text-base outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 resize-none max-h-32 placeholder-gray-500"
             />
 
             <button
               onClick={handleSendMessageUI}
               disabled={isLoading || !chatInput.trim()}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed px-4 md:px-6 py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white shadow-lg hover:shadow-xl cursor-pointer flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed px-2 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-xl md:rounded-2xl text-xs sm:text-sm md:text-base font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 text-white shadow-lg hover:shadow-xl cursor-pointer flex items-center justify-center gap-1 sm:gap-2 shrink-0"
             >
-              <span>📤</span>
+              <span className="text-sm sm:text-base">📤</span>
               <span className="hidden md:inline">Send</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* MOBILE MESSAGE VIEW */}
+      <div className="flex-1 flex sm:hidden flex-col min-h-full bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a] overflow-hidden">
+        {/* MOBILE HEADER */}
+        <div className="px-3 py-2 bg-[#171717] border-b border-gray-700/50 flex items-center justify-between shrink-0">
+          <button
+            onClick={() => {/* Toggle sidebar */}}
+            className="text-emerald-400 hover:text-emerald-300 transition-colors p-1"
+            title="Back"
+          >
+            ← Chats
+          </button>
+          <h1 className="text-xs sm:text-sm font-semibold text-gray-300 truncate flex-1 text-center px-2">
+            {chats[currentChatId]?.title || "Chat"}
+          </h1>
+          <div className="w-6"></div>
+        </div>
+
+        {/* MESSAGES CONTAINER - MOBILE */}
+        <div
+          ref={chatContainerRef}
+          className="flex-1 px-2 py-3 space-y-2 overflow-y-auto scrollbar-hide"
+        >
+          {messages.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              <div className="text-center space-y-3">
+                <div className="text-4xl animate-bounce">💬</div>
+                <p className="text-xs font-semibold text-gray-400">No messages</p>
+              </div>
+            </div>
+          ) : (
+            messages.map((msg, index) => {
+              const isLast = index === messages.length - 1;
+              const isUser = msg.role === "user";
+
+              return (
+                <div
+                  key={index}
+                  className={`flex ${isUser ? "justify-end" : "justify-start"} animate-slideUp group px-0.5`}
+                  style={{ animationDelay: `${index * 30}ms` }}
+                >
+                  {!isUser && (
+                    <div className="flex-shrink-0 mr-1">
+                      <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                        🤖
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col">
+                    <div
+                      className={`px-2.5 py-1.5 rounded-2xl max-w-xs text-xs leading-snug break-words shadow-md ${
+                        isUser
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white"
+                          : "bg-gray-800 text-gray-100 border border-gray-700"
+                      }`}
+                    >
+                      <ReactMarkdown components={markdownComponents}>
+                        {isUser && isLast ? msg.content : msg.role === "assistant" && isLast ? typingMessage : msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+
+                  {isUser && (
+                    <div className="flex-shrink-0 ml-1">
+                      <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                        {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+
+          {isLoading && (
+            <div className="flex justify-start animate-slideUp px-0.5">
+              <div className="flex-shrink-0 mr-1">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">
+                  🤖
+                </div>
+              </div>
+              <div className="px-2.5 py-1.5 rounded-2xl bg-gray-800 border border-gray-700">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* INPUT SECTION - MOBILE */}
+        <div className="px-2 py-2 bg-[#0f0f0f] border-t border-gray-700/50 shadow-2xl shrink-0">
+          {error && (
+            <div className="mb-1.5 p-2 bg-red-900/30 border border-red-600/50 rounded text-red-400 text-xs animate-shake flex items-center gap-1 font-medium">
+              <span>⚠️</span>
+              <span className="truncate">{error}</span>
+            </div>
+          )}
+
+          <div className="flex items-end gap-2">
+            <textarea
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Type..."
+              rows="1"
+              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-2 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none max-h-24 placeholder-gray-500"
+            />
+
+            <button
+              onClick={handleSendMessageUI}
+              disabled={isLoading || !chatInput.trim()}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed px-2.5 py-2 rounded-lg text-xs font-semibold transition-all duration-300 text-white shadow-lg cursor-pointer"
+            >
+              📤
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* DELETE MODAL */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
-          <div className="bg-[#1e1e1e] rounded-2xl p-6 w-[90%] max-w-sm shadow-2xl transform animate-scaleIn">
-            <h2 className="text-lg font-semibold text-white mb-2">
+          <div className="bg-[#1e1e1e] rounded-2xl p-4 sm:p-6 w-[90%] max-w-sm shadow-2xl transform animate-scaleIn">
+            <h2 className="text-base sm:text-lg font-semibold text-white mb-2">
               Delete Chat
             </h2>
 
-            <p className="text-sm text-gray-400 mb-6">
+            <p className="text-xs sm:text-sm text-gray-400 mb-4 sm:mb-6">
               Are you sure you want to delete this chat? This action cannot be
               undone.
             </p>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-2 sm:gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-sm rounded-lg bg-gray-700 hover:bg-gray-600 transition"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg bg-gray-700 hover:bg-gray-600 transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -401,7 +526,7 @@ const DashBoard = () => {
                   handleDeleteChat(chatToDelete);
                   setShowDeleteModal(false);
                 }}
-                className="px-4 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 transition"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg bg-red-600 hover:bg-red-700 transition cursor-pointer"
               >
                 Delete
               </button>
