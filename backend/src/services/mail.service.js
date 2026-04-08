@@ -22,6 +22,7 @@ export async function sendEmail({ to, subject, html, text }) {
   if (!to || !subject || (!html && !text)) {
     throw new Error("Missing required email parameters");
   }
+
   const mailOptions = {
     from: process.env.GOOGLE_USER,
     to,
@@ -31,7 +32,6 @@ export async function sendEmail({ to, subject, html, text }) {
   };
 
   const details = await transporter.sendMail(mailOptions);
-  console.log("Email sent successfully", details);
-  console.log(process.env.GOOGLE_USER);
-  console.log(process.env.GOOGLE_APP_PASSWORD);
+
+  console.log("📩 Sending email to:", to);
 }
