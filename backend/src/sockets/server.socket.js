@@ -5,7 +5,7 @@ let io;
 export function initSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: ["http://localhost:5173", "https://wiggle-ai.netlify.app"],
+      origin: ["https://wiggle-ai.netlify.app"],
       credentials: true,
     },
   });

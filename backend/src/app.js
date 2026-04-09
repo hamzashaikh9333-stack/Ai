@@ -13,13 +13,12 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173", // Vite frontend
   "http://localhost:3000", // agar frontend yaha hai
-  "https://your-netlify-site.netlify.app", // production frontend
+  "https://wiggle-ai.netlify.app", // production frontend
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -28,7 +27,7 @@ app.use(
         return callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // 🔥 VERY IMPORTANT (cookies ke liye)
+    credentials: true,
   }),
 );
 app.use(morgan("dev"));
