@@ -10,17 +10,27 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({
-  origin: [
-    "https://wiggle-ai.netlify.app",
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+const allowedOrigins = [
+  "http://localhost:5173", // Vite frontend
+  "http://localhost:3000", // agar frontend yaha hai
+  "https://your-netlify-site.netlify.app", // production frontend
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // 🔥 VERY IMPORTANT (cookies ke liye)
+  }),
+);
 app.use(morgan("dev"));
 
 app.use("/api/auth", authRouter);
