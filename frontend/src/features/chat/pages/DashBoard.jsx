@@ -61,11 +61,15 @@ const DashBoard = () => {
 
   // 🔥 LOAD MESSAGES WHEN CHAT CHANGES
   useEffect(() => {
-    // Skip fetching for temporary chats (they don't exist in DB yet)
-    if (currentChatId && !currentChatId.startsWith('temp-')) {
-      handleGetMessages(currentChatId);
+    if (!currentChatId) return;
+
+    // 🔥 TEMP CHAT BLOCK
+    if (currentChatId.startsWith("temp-")) {
+      return;
     }
-  }, [currentChatId, handleGetMessages]);
+
+    handleGetMessages(currentChatId);
+  }, [currentChatId]);
 
   // 🔥 TYPING EFFECT
   const TYPING_SPEED = 30;
@@ -195,40 +199,42 @@ const DashBoard = () => {
                 No chats yet
               </div>
             ) : (
-              chatsList.map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`group flex items-center justify-between px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
-                    currentChatId === chat.id
-                      ? "bg-emerald-600/20 text-emerald-400 border border-emerald-600/50"
-                      : "hover:bg-gray-700/40 text-gray-300"
-                  }`}
-                >
+              chatsList.map((chat) => {
+                return (
                   <div
-                    onClick={() => handleSelectChat(chat.id)}
-                    className="flex-1 truncate text-xs sm:text-sm md:text-base"
-                    title={chat.title}
+                    key={chat.id}
+                    className={`group flex items-center justify-between px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+                      currentChatId === chat.id
+                        ? "bg-emerald-600/20 text-emerald-400 border border-emerald-600/50"
+                        : "hover:bg-gray-700/40 text-gray-300"
+                    }`}
                   >
-                    {chat.title}
-                  </div>
+                    <div
+                      onClick={() => handleSelectChat(chat.id)}
+                      className="flex-1 truncate text-xs sm:text-sm md:text-base"
+                      title={chat.title}
+                    >
+                      {chat.title}
+                    </div>
 
-                  {/* DELETE BUTTON */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setChatToDelete(chat.id);
-                      setShowDeleteModal(true);
-                    }}
-                    className="hidden sm:block opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs px-2 py-1 rounded transition-all duration-200 transform hover:scale-110 cursor-pointer ml-1"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))
+                    {/* DELETE BUTTON */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setChatToDelete(chat.id);
+                        setShowDeleteModal(true);
+                      }}
+                      className="hidden sm:block opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs px-2 py-1 rounded transition-all duration-200 transform hover:scale-110 cursor-pointer ml-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
-        
+
         {/* PROFILE SECTION */}
         <div className="p-2 sm:p-3 md:p-4 text-xs sm:text-sm border-t border-gray-700/50 flex items-center gap-2 sm:gap-3 hover:bg-gray-800/30 transition-colors">
           <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs sm:text-sm font-bold shadow-md shrink-0">
@@ -254,19 +260,27 @@ const DashBoard = () => {
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center text-gray-500">
               <div className="text-center space-y-3 sm:space-y-4">
-                <div className="text-4xl sm:text-5xl md:text-6xl animate-bounce">💬</div>
-                <p className="text-xs sm:text-sm md:text-base font-semibold text-gray-400">No messages yet</p>
-                <p className="text-xs text-gray-600">Start a conversation to begin</p>
+                <div className="text-4xl sm:text-5xl md:text-6xl animate-bounce">
+                  💬
+                </div>
+                <p className="text-xs sm:text-sm md:text-base font-semibold text-gray-400">
+                  No messages yet
+                </p>
+                <p className="text-xs text-gray-600">
+                  Start a conversation to begin
+                </p>
               </div>
             </div>
           ) : (
             messages.map((msg, index) => {
               const isLast = index === messages.length - 1;
               const isUser = msg.role === "user";
-              const timestamp = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              }) : '';
+              const timestamp = msg.createdAt
+                ? new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "";
 
               return (
                 <div
@@ -286,7 +300,9 @@ const DashBoard = () => {
                   )}
 
                   {/* Message Bubble */}
-                  <div className={`flex flex-col ${isUser ? "items-end" : "items-start"} max-w-full sm:max-w-none`}>
+                  <div
+                    className={`flex flex-col ${isUser ? "items-end" : "items-start"} max-w-full sm:max-w-none`}
+                  >
                     <div
                       className={`px-3 sm:px-4 md:px-5 py-2 sm:py-3 md:py-3 rounded-2xl md:rounded-3xl max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-xs sm:text-sm md:text-base leading-relaxed break-words shadow-md transition-all duration-300 hover:shadow-lg ${
                         isUser
@@ -298,11 +314,11 @@ const DashBoard = () => {
                         {isUser && isLast
                           ? msg.content
                           : msg.role === "assistant" && isLast
-                          ? typingMessage
-                          : msg.content}
+                            ? typingMessage
+                            : msg.content}
                       </ReactMarkdown>
                     </div>
-                    
+
                     {/* Timestamp */}
                     <span className="text-xs text-gray-600 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       {timestamp}
@@ -383,7 +399,9 @@ const DashBoard = () => {
         {/* MOBILE HEADER */}
         <div className="px-3 py-2 bg-[#171717] border-b border-gray-700/50 flex items-center justify-between shrink-0">
           <button
-            onClick={() => {/* Toggle sidebar */}}
+            onClick={() => {
+              /* Toggle sidebar */
+            }}
             className="text-emerald-400 hover:text-emerald-300 transition-colors p-1"
             title="Back"
           >
@@ -404,7 +422,9 @@ const DashBoard = () => {
             <div className="h-full flex items-center justify-center text-gray-500">
               <div className="text-center space-y-3">
                 <div className="text-4xl animate-bounce">💬</div>
-                <p className="text-xs font-semibold text-gray-400">No messages</p>
+                <p className="text-xs font-semibold text-gray-400">
+                  No messages
+                </p>
               </div>
             </div>
           ) : (
@@ -435,7 +455,11 @@ const DashBoard = () => {
                       }`}
                     >
                       <ReactMarkdown components={markdownComponents}>
-                        {isUser && isLast ? msg.content : msg.role === "assistant" && isLast ? typingMessage : msg.content}
+                        {isUser && isLast
+                          ? msg.content
+                          : msg.role === "assistant" && isLast
+                            ? typingMessage
+                            : msg.content}
                       </ReactMarkdown>
                     </div>
                   </div>
@@ -462,8 +486,14 @@ const DashBoard = () => {
               <div className="px-2.5 py-1.5 rounded-2xl bg-gray-800 border border-gray-700">
                 <div className="flex gap-1">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"></div>
-                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                  <div
+                    className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
                 </div>
               </div>
             </div>

@@ -24,6 +24,7 @@ export function useChat() {
 
   const handleSendMessage = useCallback(
     async ({ message, chatId }) => {
+      if (!message) return;
       try {
         dispatch(setLoading(true));
 
@@ -64,10 +65,10 @@ export function useChat() {
         dispatch(createNewChat({ chatId: realChatId, title: chat.title }));
 
         // 🔥 FETCH ALL MESSAGES from backend to ensure complete history
-        const messagesData = await getMessages(realChatId);
-        if (messagesData && messagesData.messages) {
-          dispatch(setMessages({ chatId: realChatId, messages: messagesData.messages }));
-        }
+        // const messagesData = await getMessages(realChatId);
+        // if (messagesData && messagesData.messages) {
+        //   dispatch(setMessages({ chatId: realChatId, messages: messagesData.messages }));
+        // }
 
         // Switch to the real chat ID
         dispatch(setCurrentChatId(realChatId));
@@ -112,6 +113,11 @@ export function useChat() {
 
   const handleGetMessages = useCallback(
     async (chatId) => {
+      // 🔥 STEP 3.1: TEMP CHAT BLOCK
+      if (!chatId || chatId.startsWith("temp-")) {
+        return;
+      }
+
       try {
         dispatch(setLoading(true));
 
@@ -121,6 +127,7 @@ export function useChat() {
           dispatch(setError(data?.error || "Failed to fetch messages"));
           return;
         }
+
         dispatch(setMessages({ chatId, messages: data.messages }));
       } catch (error) {
         dispatch(setError("Failed to fetch messages"));

@@ -22,8 +22,6 @@ export function initializeSocketConnection() {
 
   // ✅ 3. Listen for messages (ONLY ONCE)
   socket.on("messageReceived", (data) => {
-    console.log("📩 SOCKET MESSAGE:", data);
-
     const { chatId, content, role } = data;
 
     store.dispatch(
